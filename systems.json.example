@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "defaultSystem": "EXAMPLE",
+  "systems": [
+    {
+      "key": "EXAMPLE",
+      "name": "Example S/4HANA Cloud (sandbox)",
+      "baseUrl": "https://my123456-api.s4hana.cloud.sap",
+      "sapClient": "100",
+      "authType": "OAUTH2",
+      "tokenUrl": "https://my123456-api.s4hana.cloud.sap/sap/bc/sec/oauth2/token?sap-client=100",
+      "clientIdEnvVar": "EXAMPLE_OAUTH_CLIENT_ID",
+      "clientSecretEnvVar": "EXAMPLE_OAUTH_CLIENT_SECRET",
+      "tokenRefreshMarginSec": 60,
+      "readOnly": true
+    },
+    {
+      "key": "QUAL",
+      "name": "Quality tenant (writes enabled, allowlisted)",
+      "baseUrl": "https://my654321.s4hana.ondemand.com",
+      "authType": "BASIC",
+      "userEnvVar": "QUAL_COMM_USER",
+      "passwordEnvVar": "QUAL_COMM_PASSWORD",
+      "readOnly": false,
+      "allowedEntities": ["A_BusinessPartner", "A_PurchaseRequisitionItem"]
+    }
+  ]
+}

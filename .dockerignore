@@ -1,0 +1,13 @@
+node_modules
+dist
+coverage
+test
+tools
+.git
+.github
+.muave-sapmcp
+.env
+.env.local
+systems.json
+*.md
+!README.md

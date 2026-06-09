@@ -1,0 +1,73 @@
+{
+  "name": "muave-sapmcp",
+  "version": "0.1.0",
+  "description": "Enterprise MCP server connecting Claude Code to SAP S/4HANA Cloud Public Edition OData (V2 + V4) services dynamically.",
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "sap",
+    "s4hana",
+    "odata",
+    "claude",
+    "anthropic"
+  ],
+  "license": "Apache-2.0",
+  "author": "maydaloda <maydaloda@gmail.com>",
+  "homepage": "https://github.com/maydaloda/muave-sapmcp#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/maydaloda/muave-sapmcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/maydaloda/muave-sapmcp/issues"
+  },
+  "type": "module",
+  "bin": {
+    "muave-sapmcp": "dist/index.js"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "systems.json.example",
+    ".env.example",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx watch src/index.ts",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage",
+    "lint": "eslint . --max-warnings 0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "prepublishOnly": "npm run typecheck && npm run lint && npm run test && npm run build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "fast-xml-parser": "^5.2.5",
+    "pino": "^9.5.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.17.0",
+    "@types/node": "^20.14.0",
+    "@vitest/coverage-v8": "^2.1.8",
+    "eslint": "^9.17.0",
+    "eslint-config-prettier": "^9.1.0",
+    "prettier": "^3.4.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2",
+    "typescript-eslint": "^8.18.0",
+    "undici": "^6.21.0",
+    "vitest": "^2.1.8"
+  }
+}

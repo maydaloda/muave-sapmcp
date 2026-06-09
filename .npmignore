@@ -1,0 +1,15 @@
+src/
+test/
+tools/
+.github/
+.muave-sapmcp/
+coverage/
+*.tsbuildinfo
+tsconfig.json
+vitest.config.ts
+eslint.config.js
+.prettierrc.json
+.env
+.env.local
+systems.json
+can-you-check-if-logical-zebra.md

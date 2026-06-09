@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="4.0" xmlns:edmx="http://docs.oasis-open.org/odata/ns/edmx">
+  <edmx:Reference Uri="../../default/iwbep/common/0001/$metadata">
+    <edmx:Include Namespace="com.sap.vocabularies.Common.v1" Alias="Common"/>
+  </edmx:Reference>
+  <edmx:DataServices>
+    <Schema Namespace="com.sap.gateway.srvd_a2x.zsample.v0001"
+      xmlns="http://docs.oasis-open.org/odata/ns/edm">
+      <EntityType Name="SampleType">
+        <Key>
+          <PropertyRef Name="ID"/>
+          <PropertyRef Name="IsActiveEntity"/>
+        </Key>
+        <Property Name="ID" Type="Edm.Guid" Nullable="false"/>
+        <Property Name="Name" Type="Edm.String" MaxLength="40">
+          <Annotation Term="Common.Label" String="Sample Name"/>
+        </Property>
+        <Property Name="Amount" Type="Edm.Decimal" Nullable="true"/>
+        <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false"/>
+        <NavigationProperty Name="DraftAdministrativeData"
+          Type="com.sap.gateway.srvd_a2x.zsample.v0001.DraftAdministrativeDataType" Nullable="true"/>
+        <NavigationProperty Name="_Items"
+          Type="Collection(com.sap.gateway.srvd_a2x.zsample.v0001.ItemType)"/>
+      </EntityType>
+      <EntityType Name="ItemType">
+        <Key>
+          <PropertyRef Name="ItemID"/>
+          <PropertyRef Name="IsActiveEntity"/>
+        </Key>
+        <Property Name="ItemID" Type="Edm.String" Nullable="false" MaxLength="10"/>
+        <Property Name="IsActiveEntity" Type="Edm.Boolean" Nullable="false"/>
+      </EntityType>
+      <EntityType Name="DraftAdministrativeDataType">
+        <Key>
+          <PropertyRef Name="DraftUUID"/>
+        </Key>
+        <Property Name="DraftUUID" Type="Edm.Guid" Nullable="false"/>
+      </EntityType>
+      <Action Name="Edit" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="com.sap.gateway.srvd_a2x.zsample.v0001.SampleType"/>
+        <ReturnType Type="com.sap.gateway.srvd_a2x.zsample.v0001.SampleType"/>
+      </Action>
+      <Action Name="Prepare" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="com.sap.gateway.srvd_a2x.zsample.v0001.SampleType"/>
+        <ReturnType Type="com.sap.gateway.srvd_a2x.zsample.v0001.SampleType"/>
+      </Action>
+      <Action Name="Activate" IsBound="true" EntitySetPath="in">
+        <Parameter Name="in" Type="com.sap.gateway.srvd_a2x.zsample.v0001.SampleType"/>
+        <ReturnType Type="com.sap.gateway.srvd_a2x.zsample.v0001.SampleType"/>
+      </Action>
+      <Action Name="Discard" IsBound="true">
+        <Parameter Name="in" Type="com.sap.gateway.srvd_a2x.zsample.v0001.SampleType"/>
+      </Action>
+      <EntityContainer Name="Container">
+        <EntitySet Name="Sample" EntityType="com.sap.gateway.srvd_a2x.zsample.v0001.SampleType"/>
+        <EntitySet Name="Item" EntityType="com.sap.gateway.srvd_a2x.zsample.v0001.ItemType"/>
+      </EntityContainer>
+      <Annotations Target="com.sap.gateway.srvd_a2x.zsample.v0001.SampleType">
+        <Annotation Term="Common.DraftRoot"/>
+      </Annotations>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

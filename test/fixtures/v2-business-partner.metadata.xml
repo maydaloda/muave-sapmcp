@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="1.0"
+  xmlns:edmx="http://schemas.microsoft.com/ado/2007/06/edmx"
+  xmlns:m="http://schemas.microsoft.com/ado/2007/08/dataservices/metadata"
+  xmlns:sap="http://www.sap.com/Protocols/SAPData">
+  <edmx:DataServices m:DataServiceVersion="2.0">
+    <Schema Namespace="API_BUSINESS_PARTNER" xmlns="http://schemas.microsoft.com/ado/2008/09/edm">
+      <EntityType Name="A_BusinessPartnerType" sap:label="Business Partner">
+        <Key>
+          <PropertyRef Name="BusinessPartner"/>
+        </Key>
+        <Property Name="BusinessPartner" Type="Edm.String" Nullable="false" MaxLength="10" sap:label="Business Partner"/>
+        <Property Name="BusinessPartnerName" Type="Edm.String" MaxLength="80" sap:label="Name" sap:filterable="true"/>
+        <Property Name="CreationDate" Type="Edm.DateTime" sap:label="Created On" sap:sortable="false"/>
+        <NavigationProperty Name="to_BusinessPartnerAddress"
+          Relationship="API_BUSINESS_PARTNER.assoc_BusinessPartner_Address"
+          FromRole="FromRole_assoc" ToRole="ToRole_assoc"/>
+      </EntityType>
+      <EntityType Name="A_BusinessPartnerAddressType">
+        <Key>
+          <PropertyRef Name="AddressID"/>
+        </Key>
+        <Property Name="AddressID" Type="Edm.String" Nullable="false" MaxLength="10"/>
+        <Property Name="CityName" Type="Edm.String" MaxLength="40" sap:label="City"/>
+      </EntityType>
+      <Association Name="assoc_BusinessPartner_Address">
+        <End Type="API_BUSINESS_PARTNER.A_BusinessPartnerType" Multiplicity="1" Role="FromRole_assoc"/>
+        <End Type="API_BUSINESS_PARTNER.A_BusinessPartnerAddressType" Multiplicity="*" Role="ToRole_assoc"/>
+      </Association>
+      <EntityContainer Name="API_BUSINESS_PARTNER_Entities" m:IsDefaultEntityContainer="true">
+        <EntitySet Name="A_BusinessPartner" EntityType="API_BUSINESS_PARTNER.A_BusinessPartnerType"/>
+        <EntitySet Name="A_BusinessPartnerAddress" EntityType="API_BUSINESS_PARTNER.A_BusinessPartnerAddressType"/>
+      </EntityContainer>
+    </Schema>
+  </edmx:DataServices>
+</edmx:Edmx>

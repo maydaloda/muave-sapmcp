@@ -1,0 +1,26 @@
+node_modules/
+dist/
+coverage/
+*.log
+
+# Local runtime config & cache — never commit secrets or per-machine state
+.env
+.env.local
+.muave-sapmcp/
+systems.json
+.mcp.json
+
+# Internal testing / dev tools — kept locally, not committed or published
+tools/
+
+# Internal design notes (references private repos / tenant design)
+can-you-check-if-logical-zebra.md
+
+# npm pack artifacts
+*.tgz
+
+# Editor / OS / tooling
+.DS_Store
+.idea/
+.claude/
+*.tsbuildinfo
