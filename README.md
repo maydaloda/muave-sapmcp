@@ -22,7 +22,7 @@ npm install -g muave-sapmcp
 npm install && npm run build
 ```
 
-Requires Node.js ≥ 20.
+Requires Node.js ≥ 20.12.
 
 ## Configure
 

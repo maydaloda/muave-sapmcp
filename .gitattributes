@@ -1,0 +1,7 @@
+# Normalize line endings: store LF in the repo, check out LF everywhere.
+# Prevents CRLF churn between Windows/macOS/Linux contributors and CI.
+* text=auto eol=lf
+
+# Keep Windows-native files CRLF if ever added
+*.bat text eol=crlf
+*.cmd text eol=crlf
