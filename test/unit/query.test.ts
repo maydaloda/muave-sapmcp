@@ -84,4 +84,35 @@ describe("buildKeyPredicate", () => {
   it("throws on a composite key passed as a scalar", () => {
     expect(() => buildKeyPredicate(["A", "B"], "x", "v4")).toThrow();
   });
+
+  it("emits BARE date literals in V4 key predicates (SAP RAP validity keys)", () => {
+    const props = new Map<string, ParsedProperty>([
+      ["ControllingArea", prop("ControllingArea", "Edm.String")],
+      ["ValidityEndDate", prop("ValidityEndDate", "Edm.Date")],
+    ]);
+    const pred = buildKeyPredicate(
+      ["ControllingArea", "ValidityEndDate"],
+      { ControllingArea: "A000", ValidityEndDate: "9999-12-31" },
+      "v4",
+      props
+    );
+    expect(pred).toBe("(ControllingArea='A000',ValidityEndDate=9999-12-31)");
+  });
+
+  it("uses type-prefixed quoted datetime literals on V2", () => {
+    const props = new Map<string, ParsedProperty>([["D", prop("D", "Edm.DateTime")]]);
+    expect(buildKeyPredicate(["D"], "2026-01-01T00:00:00", "v2", props)).toBe(
+      "(datetime'2026-01-01T00:00:00')"
+    );
+  });
+
+  it("V4 DateTimeOffset keys are bare; V2 are datetimeoffset-prefixed", () => {
+    const props = new Map<string, ParsedProperty>([["T", prop("T", "Edm.DateTimeOffset")]]);
+    expect(buildKeyPredicate(["T"], "2026-01-01T00:00:00Z", "v4", props)).toBe(
+      "(2026-01-01T00:00:00Z)"
+    );
+    expect(buildKeyPredicate(["T"], "2026-01-01T00:00:00Z", "v2", props)).toBe(
+      "(datetimeoffset'2026-01-01T00:00:00Z')"
+    );
+  });
 });

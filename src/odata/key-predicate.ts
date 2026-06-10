@@ -55,5 +55,19 @@ function formatKeyValue(
   if (/Edm\.(Int16|Int32|Int64|Decimal|Double|Single|Byte|SByte)/i.test(edm)) {
     return String(value);
   }
+  // Date/time keys: V4 uses bare literals (ValidityEndDate=9999-12-31);
+  // V2 uses type-prefixed quoted literals (datetime'2026-01-01T00:00:00').
+  if (/Edm\.(Date|TimeOfDay)$/i.test(edm)) {
+    return String(value);
+  }
+  if (/Edm\.DateTimeOffset$/i.test(edm)) {
+    return version === "v2" ? `datetimeoffset'${value}'` : String(value);
+  }
+  if (/Edm\.DateTime$/i.test(edm)) {
+    return `datetime'${value}'`;
+  }
+  if (/Edm\.Time$/i.test(edm)) {
+    return `time'${value}'`;
+  }
   return `'${String(value).replace(/'/g, "''")}'`;
 }

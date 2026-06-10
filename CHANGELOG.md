@@ -25,6 +25,14 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   against the systems file's directory).
 - README: "Use with Claude Desktop" setup section and catalog-cache docs.
 
+### Fixed
+
+- **Date-typed key predicates.** V4 `Edm.Date`/`Edm.DateTimeOffset`/`Edm.TimeOfDay`
+  keys are now emitted as bare literals (`ValidityEndDate=9999-12-31`) instead of
+  quoted strings — required by SAP RAP A2X services with validity-period keys
+  (e.g. Cost Center). V2 `Edm.DateTime`/`Edm.DateTimeOffset`/`Edm.Time` keys get
+  their type-prefixed quoted forms (`datetime'...'`).
+
 ## [0.1.0] — 2026-06-10
 
 Initial release: an enterprise-grade MCP server connecting Claude Code to SAP
