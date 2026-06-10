@@ -82,6 +82,41 @@ See [.env.example](.env.example). **Never** put secret values in `systems.json`.
 
 (From source, use `"command": "node", "args": ["/abs/path/dist/index.js"]`.)
 
+### 4. Use with Claude Desktop
+
+Claude Desktop reads the same `mcpServers` shape from its own config file:
+
+| OS | Config file |
+|---|---|
+| Windows | `%APPDATA%\Claude\claude_desktop_config.json` |
+| Windows (Microsoft Store app) | `%LOCALAPPDATA%\Packages\Claude_*\LocalCache\Roaming\Claude\claude_desktop_config.json` |
+| macOS | `~/Library/Application Support/Claude/claude_desktop_config.json` |
+
+(Or open it via **Claude Desktop → Settings → Developer → Edit Config**.)
+
+```jsonc
+{
+  "mcpServers": {
+    "muave-sapmcp": {
+      "command": "node",
+      "args": ["C:\\path\\to\\node_modules\\muave-sapmcp\\dist\\index.js"],
+      "env": {
+        "MUAVE_SYSTEMS_FILE": "C:\\path\\to\\systems.json",
+        "MUAVE_ENV_FILE": "C:\\path\\to\\.env.local",
+        "LOG_LEVEL": "info"
+      }
+    }
+  }
+}
+```
+
+Desktop-specific notes:
+
+- **Use `node` with an absolute path** to `dist/index.js` — GUI apps don't reliably inherit your shell `PATH`, and `npx`/`.cmd` shims often fail on Windows. After `npm install -g muave-sapmcp`, find the install dir with `npm root -g`.
+- **Keep secrets out of the config**: point `MUAVE_ENV_FILE` at a local env file (e.g. `.env.local`) containing the credential variables your `systems.json` references, instead of inlining them in `env`.
+- **Fully quit and relaunch** after editing the config (system tray → Quit on Windows; ⌘Q on macOS) — closing the window isn't enough.
+- Verify: the tools icon in the chat box lists the `muave-sapmcp` tools; try *"List my SAP systems."* If the server shows as failed, check the MCP logs next to the config file (`logs/mcp-server-muave-sapmcp.log`).
+
 ## Tools
 
 | Tool | Purpose |
