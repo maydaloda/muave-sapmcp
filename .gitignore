@@ -11,7 +11,8 @@ systems.json
 .mcp.json
 
 # Internal testing / dev tools — kept locally, not committed or published
-tools/
+# NOTE: anchored to repo root so it does NOT also match src/tools/ (the MCP tool handlers).
+/tools/
 
 # Internal design notes (references private repos / tenant design)
 can-you-check-if-logical-zebra.md

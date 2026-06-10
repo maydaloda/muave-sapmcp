@@ -1,6 +1,6 @@
 src/
 test/
-tools/
+/tools/
 .github/
 .muave-sapmcp/
 coverage/
