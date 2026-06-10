@@ -2,7 +2,7 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { AuthDeps } from "./auth/provider.js";
 import { TokenCache } from "./auth/token-cache.js";
 import { loadSystemsFile } from "./config/load.js";
-import { catalogFilePath } from "./config/paths.js";
+import { catalogFilePath, findSystemsFile } from "./config/paths.js";
 import { ConfigStore } from "./config/resolve.js";
 import { createCredentialResolver } from "./credentials/index.js";
 import { GovernancePolicy } from "./governance/policy.js";
@@ -15,12 +15,13 @@ import { JsonFileCatalogStore } from "./store/json-file-store.js";
 import { registerAllTools, type ToolContext } from "./tools/index.js";
 
 const SERVER_NAME = "muave-sapmcp";
-const SERVER_VERSION = "0.1.0";
+const SERVER_VERSION = "0.1.1";
 
 /**
  * Composition root: load config, wire all layers, build the configured McpServer.
  */
 export async function createServer(): Promise<McpServer> {
+  const systemsFilePath = findSystemsFile();
   const file = await loadSystemsFile();
 
   const credentials = createCredentialResolver();
@@ -31,7 +32,10 @@ export async function createServer(): Promise<McpServer> {
   const limiter = new ConcurrencyLimiter(15);
   const client = new ODataClient({ resolver: config, logger, limiter });
 
-  const store = new JsonFileCatalogStore(catalogFilePath(), logger);
+  const store = new JsonFileCatalogStore(
+    catalogFilePath({ systemsFilePath, cacheDir: file.cacheDir }),
+    logger
+  );
   await store.load();
 
   const governance = new GovernancePolicy();

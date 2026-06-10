@@ -1,6 +1,6 @@
 {
   "name": "muave-sapmcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Enterprise MCP server connecting Claude Code to SAP S/4HANA Cloud Public Edition OData (V2 + V4) services dynamically.",
   "keywords": [
     "mcp",

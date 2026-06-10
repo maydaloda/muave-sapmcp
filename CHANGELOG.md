@@ -4,6 +4,27 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] — 2026-06-10
+
+### Changed
+
+- **Predictable catalog-cache location.** The catalog cache now defaults to a
+  `.muave-sapmcp/` directory **next to the loaded `systems.json`** instead of the
+  process working directory. This makes registrations persist correctly when the
+  server is spawned with an arbitrary cwd (e.g. by Claude Desktop) and lets
+  Claude Code and Claude Desktop share one cache. Full precedence:
+  `MUAVE_CACHE_DIR` env → `cacheDir` (systems.json) → `MUAVE_HOME` env →
+  systems-file directory → cwd.
+  - Migration: if a previous launch used a cwd different from the systems-file
+    directory, move that `.muave-sapmcp/catalog.json` next to your
+    `systems.json` (or simply re-register services).
+
+### Added
+
+- Optional top-level `cacheDir` in `systems.json` (relative paths resolve
+  against the systems file's directory).
+- README: "Use with Claude Desktop" setup section and catalog-cache docs.
+
 ## [0.1.0] — 2026-06-10
 
 Initial release: an enterprise-grade MCP server connecting Claude Code to SAP

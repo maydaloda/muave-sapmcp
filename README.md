@@ -63,6 +63,19 @@ Secrets are resolved from the environment by the names referenced above — supp
 them via your MCP client's `env` block, a process manager, or a secret manager.
 See [.env.example](.env.example). **Never** put secret values in `systems.json`.
 
+### Where the catalog cache lives
+
+Registered services and parsed metadata persist in `catalog.json` (entries are
+namespaced per system as `"<systemKey>:<serviceId>"`, so multiple S/4HANA systems
+share one cache file without mixing). Location precedence:
+
+1. `MUAVE_CACHE_DIR` env var
+2. `cacheDir` in `systems.json` (relative paths resolve against the systems file's directory)
+3. `MUAVE_HOME` env var
+4. **Default:** a `.muave-sapmcp/` directory **next to your `systems.json`** — predictable even
+   when the server is spawned with an arbitrary working directory (e.g. by Claude Desktop)
+5. `<cwd>/.muave-sapmcp/` (no systems file found yet)
+
 ### 3. Register with Claude Code (`.mcp.json`)
 
 ```jsonc
@@ -114,6 +127,7 @@ Desktop-specific notes:
 
 - **Use `node` with an absolute path** to `dist/index.js` — GUI apps don't reliably inherit your shell `PATH`, and `npx`/`.cmd` shims often fail on Windows. After `npm install -g muave-sapmcp`, find the install dir with `npm root -g`.
 - **Keep secrets out of the config**: point `MUAVE_ENV_FILE` at a local env file (e.g. `.env.local`) containing the credential variables your `systems.json` references, instead of inlining them in `env`.
+- **Catalog cache**: from 0.1.1 the cache defaults to a `.muave-sapmcp/` dir next to your `systems.json`, so Claude Desktop and Claude Code share registrations automatically. Set `MUAVE_HOME` (or `cacheDir` in `systems.json`) only if you want it elsewhere.
 - **Fully quit and relaunch** after editing the config (system tray → Quit on Windows; ⌘Q on macOS) — closing the window isn't enough.
 - Verify: the tools icon in the chat box lists the `muave-sapmcp` tools; try *"List my SAP systems."* If the server shows as failed, check the MCP logs next to the config file (`logs/mcp-server-muave-sapmcp.log`).
 

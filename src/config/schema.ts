@@ -66,6 +66,8 @@ export const SystemsFileSchema = z
     schemaVersion: z.literal(1).default(1),
     systems: z.array(SystemConfigSchema).min(1),
     defaultSystem: z.string().optional(),
+    /** Where to keep the catalog cache; relative paths resolve against this file's directory. */
+    cacheDir: z.string().optional(),
   })
   .superRefine((file, ctx) => {
     const seen = new Set<string>();
