@@ -69,7 +69,9 @@ export const oauthApplication = pgTable("oauth_application", {
   metadata: text("metadata"),
   clientId: text("client_id").unique(),
   clientSecret: text("client_secret"),
-  redirectURLs: text("redirect_u_r_ls"),
+  // Property MUST be `redirectUrls` (better-auth's field name); the DB column
+  // keeps the name migration 0000 created, so no migration is required.
+  redirectUrls: text("redirect_u_r_ls"),
   type: text("type"),
   disabled: boolean("disabled"),
   userId: text("user_id"),

@@ -124,6 +124,28 @@ async function main(): Promise<void> {
       );
     }
 
+    // 1b. Dynamic Client Registration (the first thing claude.ai does). NOTE:
+    // INFORMATIONAL ONLY under this harness — DCR does a multi-query insert and
+    // the embedded PGlite test DB is single-connection, so it intermittently
+    // 500s here purely from connection contention. It is reliable on real
+    // Postgres (Neon) and is verified against the live deployment, not here.
+    {
+      const res = await fetch(`${BASE}/api/auth/mcp/register`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          client_name: "e2e-dcr",
+          redirect_uris: ["https://claude.ai/api/mcp/auth_callback"],
+          grant_types: ["authorization_code", "refresh_token"],
+          response_types: ["code"],
+          token_endpoint_auth_method: "none",
+        }),
+      });
+      const json: any = await res.json().catch(() => null);
+      const ok = (res.status === 200 || res.status === 201) && typeof json?.client_id === "string";
+      console.log(`  ${ok ? "✓" : "·"} dynamic client registration (informational, PGlite) — status=${res.status}`);
+    }
+
     // 2. Admin sees ALL systems — env-defined AND the DB-managed one (encrypted creds).
     {
       const { status, json } = await mcpCall(ADMIN_TOKEN, toolsCall("list_systems"));

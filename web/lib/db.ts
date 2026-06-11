@@ -30,8 +30,11 @@ function create(): { db: Db; ready: Promise<void> } {
   }
 
   // The embedded PGlite fallback is for LOCAL DEVELOPMENT only — serverless
-  // filesystems are read-only/ephemeral. Fail fast with an actionable message.
-  if (process.env.VERCEL || process.env.NODE_ENV === "production") {
+  // filesystems are read-only/ephemeral. Fail fast at RUNTIME on Vercel with an
+  // actionable message, but never during `next build` (NEXT_PHASE) or locally
+  // (no VERCEL), so builds and the local PGlite test harness keep working.
+  const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build";
+  if (process.env.VERCEL && !isBuildPhase) {
     throw new Error(
       "DATABASE_URL is not set. Attach a Postgres database (e.g. Neon) to this deployment, " +
         "set DATABASE_URL as an environment variable, and redeploy. " +
