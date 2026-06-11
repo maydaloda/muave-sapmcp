@@ -14,6 +14,12 @@ import { db, schema } from "./db";
 export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
   secret: process.env.BETTER_AUTH_SECRET,
+  // Extra origins allowed to reach auth endpoints (e.g. the *.vercel.app URL
+  // alongside a custom domain). Comma-separated.
+  trustedOrigins: (process.env.MUAVE_TRUSTED_ORIGINS ?? "")
+    .split(",")
+    .map((s) => s.trim().replace(/\/+$/, ""))
+    .filter(Boolean),
   database: drizzleAdapter(db, {
     provider: "pg",
     schema: {
