@@ -14,11 +14,12 @@ import { eq } from "drizzle-orm";
 import {
   ConcurrencyLimiter,
   ConfigStore,
+  ConfigError,
   EnvCredentialResolver,
   GovernancePolicy,
   loadSystemsFile,
   logger,
-  SystemsFileSchema,
+  SystemConfigSchema,
   TokenCache,
   type AuthDeps,
   type CredentialResolver,
@@ -76,7 +77,16 @@ declare global {
 }
 
 async function createShared(): Promise<SharedSap> {
-  const envFile = await loadSystemsFile(); // MUAVE_SYSTEMS_JSON
+  // Env config (MUAVE_SYSTEMS_JSON) is OPTIONAL on the web deployment — systems
+  // can be managed entirely via /admin/systems. Missing config = empty list.
+  let envFile: SystemsFile;
+  try {
+    envFile = await loadSystemsFile();
+  } catch (err) {
+    if (!(err instanceof ConfigError)) throw err;
+    logger.info("no MUAVE_SYSTEMS_JSON / systems.json — using admin-managed systems only");
+    envFile = { schemaVersion: 1, systems: [] };
+  }
   const authDeps: AuthDeps = {
     credentials: new CompositeCredentialResolver(),
     tokenCache: new TokenCache(),
@@ -145,11 +155,20 @@ export async function getMergedSystems(): Promise<MergedSystems> {
     dbKeys.add(row.key);
   }
 
-  const merged = SystemsFileSchema.parse({
+  // Validate DB rows individually (applies schema defaults). The file-level
+  // schema requires >=1 system, but an empty directory is legal here — the
+  // admin simply hasn't added systems yet.
+  const dbParsed = dbConfigs.map((c) => SystemConfigSchema.parse(c));
+  const systems = [...shared.envFile.systems, ...dbParsed];
+  const defaultSystem =
+    shared.envFile.defaultSystem && systems.some((s) => s.key === shared.envFile.defaultSystem)
+      ? shared.envFile.defaultSystem
+      : undefined;
+  const merged: SystemsFile = {
     schemaVersion: 1,
-    systems: [...shared.envFile.systems, ...dbConfigs],
-    ...(shared.envFile.defaultSystem ? { defaultSystem: shared.envFile.defaultSystem } : {}),
-  });
+    systems,
+    ...(defaultSystem ? { defaultSystem } : {}),
+  };
 
   return {
     store: new ConfigStore(merged, shared.authDeps),
