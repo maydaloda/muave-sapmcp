@@ -4,6 +4,18 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] — 2026-06-11
+
+### Added
+
+- **Programmatic API.** The package is now importable (`import { registerAllTools, ConfigStore, … } from "muave-sapmcp"`)
+  for embedding the connector in other hosts (e.g. a remote Streamable-HTTP
+  deployment). `main`/`types` point at the new `dist/lib.js`; the CLI `bin`
+  (stdio server) is unchanged.
+- **`MUAVE_SYSTEMS_JSON` env var** — supply the systems configuration as inline
+  JSON (takes precedence over `systems.json` files) for serverless hosts with
+  no filesystem config.
+
 ## [0.1.1] — 2026-06-10
 
 ### Changed

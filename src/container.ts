@@ -15,7 +15,7 @@ import { JsonFileCatalogStore } from "./store/json-file-store.js";
 import { registerAllTools, type ToolContext } from "./tools/index.js";
 
 const SERVER_NAME = "muave-sapmcp";
-const SERVER_VERSION = "0.1.1";
+const SERVER_VERSION = "0.2.0";
 
 /**
  * Composition root: load config, wire all layers, build the configured McpServer.

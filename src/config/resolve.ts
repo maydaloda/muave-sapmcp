@@ -19,10 +19,22 @@ export interface ResolvedSystem {
 }
 
 /**
+ * The directory of configured systems as seen by the tool layer. ConfigStore is
+ * the standard implementation; embedders (e.g. a multi-user remote deployment)
+ * can supply a filtering wrapper (per-user/group system access) instead.
+ */
+export interface SystemDirectory {
+  listSystems(): readonly SystemConfig[];
+  readonly defaultSystemKey: string | undefined;
+  anyWritable(): boolean;
+  resolveSystem(key?: string): ResolvedSystem;
+}
+
+/**
  * Holds the validated systems file and lazily resolves systems (constructing the
  * auth provider once per system and caching it for the process lifetime).
  */
-export class ConfigStore {
+export class ConfigStore implements SystemDirectory {
   private readonly cache = new Map<string, ResolvedSystem>();
 
   constructor(

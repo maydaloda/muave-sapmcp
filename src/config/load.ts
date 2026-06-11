@@ -10,10 +10,32 @@ export class ConfigError extends Error {
 }
 
 /**
- * Locate, read, parse, and validate `systems.json`. Throws a {@link ConfigError}
- * with an actionable message on any failure.
+ * Locate, read, parse, and validate the systems configuration. Precedence:
+ * `MUAVE_SYSTEMS_JSON` env var (inline JSON — for serverless hosts with no
+ * filesystem config), then a `systems.json` file (see {@link findSystemsFile}).
+ * Throws a {@link ConfigError} with an actionable message on any failure.
  */
 export async function loadSystemsFile(): Promise<SystemsFile> {
+  const inline = process.env.MUAVE_SYSTEMS_JSON;
+  if (inline && inline.trim().length > 0) {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(inline);
+    } catch (err) {
+      throw new ConfigError(
+        `MUAVE_SYSTEMS_JSON is not valid JSON: ${err instanceof Error ? err.message : String(err)}`
+      );
+    }
+    const result = SystemsFileSchema.safeParse(parsed);
+    if (!result.success) {
+      const issues = result.error.issues
+        .map((i) => `  - ${i.path.join(".") || "(root)"}: ${i.message}`)
+        .join("\n");
+      throw new ConfigError(`MUAVE_SYSTEMS_JSON failed validation:\n${issues}`);
+    }
+    return result.data;
+  }
+
   const path = findSystemsFile();
   if (!path) {
     throw new ConfigError(

@@ -23,3 +23,27 @@ jobs:
       - run: npm run lint
       - run: npm run test -- --coverage
       - run: npm run build
+
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      # Build the web app against the in-repo core (packed tarball), not the registry.
+      - run: npm ci && npm run build && npm pack
+      - name: Install web deps with local core tarball
+        working-directory: web
+        run: |
+          TARBALL=$(ls ../muave-sapmcp-*.tgz)
+          npm pkg set dependencies.muave-sapmcp="file:$TARBALL"
+          npm install
+      - name: Typecheck + build web
+        working-directory: web
+        env:
+          BETTER_AUTH_SECRET: ci-dummy-secret
+        run: npm run typecheck && npm run build
+      - name: E2E (auth + group filtering against built server)
+        working-directory: web
+        run: npm run e2e

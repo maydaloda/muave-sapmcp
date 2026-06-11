@@ -1,0 +1,10 @@
+node_modules/
+.next/
+out/
+.data/
+.env
+.env.local
+*.tsbuildinfo
+next-env.d.ts
+# CI/local installs swap the core dep for a packed tarball; lockfile would churn.
+package-lock.json

@@ -1,6 +1,6 @@
 {
   "name": "muave-sapmcp",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Enterprise MCP server connecting Claude Code to SAP S/4HANA Cloud Public Edition OData (V2 + V4) services dynamically.",
   "keywords": [
     "mcp",
@@ -25,8 +25,15 @@
   "bin": {
     "muave-sapmcp": "dist/index.js"
   },
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/lib.js",
+  "types": "dist/lib.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/lib.d.ts",
+      "import": "./dist/lib.js"
+    },
+    "./package.json": "./package.json"
+  },
   "files": [
     "dist",
     "systems.json.example",
