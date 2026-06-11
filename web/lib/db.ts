@@ -29,6 +29,16 @@ function create(): { db: Db; ready: Promise<void> } {
     return { db, ready: Promise.resolve() };
   }
 
+  // The embedded PGlite fallback is for LOCAL DEVELOPMENT only — serverless
+  // filesystems are read-only/ephemeral. Fail fast with an actionable message.
+  if (process.env.VERCEL || process.env.NODE_ENV === "production") {
+    throw new Error(
+      "DATABASE_URL is not set. Attach a Postgres database (e.g. Neon) to this deployment, " +
+        "set DATABASE_URL as an environment variable, and redeploy. " +
+        "The embedded PGlite database only works for local development."
+    );
+  }
+
   // Embedded dev database. PGlite is imported lazily so production bundles
   // never touch it when DATABASE_URL is set.
   // eslint-disable-next-line @typescript-eslint/no-require-imports
