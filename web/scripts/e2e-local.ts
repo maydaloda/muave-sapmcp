@@ -30,6 +30,8 @@ const ENV = {
     ],
   }),
   E2E_CRED: "ZHVtbXk6ZHVtbXk=",
+  // 32 zero bytes base64 — test-only master key for encrypted DB credentials.
+  MUAVE_CRED_KEY: "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=",
 };
 delete (ENV as Record<string, unknown>).DATABASE_URL;
 
@@ -122,13 +124,16 @@ async function main(): Promise<void> {
       );
     }
 
-    // 2. Admin sees ALL systems.
+    // 2. Admin sees ALL systems — env-defined AND the DB-managed one (encrypted creds).
     {
       const { status, json } = await mcpCall(ADMIN_TOKEN, toolsCall("list_systems"));
       const systems = json?.result?.structuredContent?.systems?.map((s: any) => s.key) ?? [];
       record(
-        "admin token works and sees all systems",
-        status === 200 && systems.includes("SYS_A") && systems.includes("SYS_B"),
+        "admin sees env systems AND the DB-managed system",
+        status === 200 &&
+          systems.includes("SYS_A") &&
+          systems.includes("SYS_B") &&
+          systems.includes("SYS_DB"),
         `systems=${JSON.stringify(systems)}`
       );
     }

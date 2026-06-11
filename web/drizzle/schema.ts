@@ -111,6 +111,27 @@ export const groups = pgTable("groups", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
+/**
+ * Admin-managed SAP systems (in addition to the operator's MUAVE_SYSTEMS_JSON).
+ * Credential columns hold AES-256-GCM ciphertext (lib/crypto.ts) — never plaintext,
+ * and they are never sent back to the browser.
+ */
+export const sapSystems = pgTable("sap_systems", {
+  key: text("key").primaryKey(),
+  name: text("name"),
+  baseUrl: text("base_url").notNull(),
+  sapClient: text("sap_client"),
+  authType: text("auth_type").notNull(), // BASIC | OAUTH2
+  readOnly: boolean("read_only").notNull().default(true),
+  tokenUrl: text("token_url"),
+  encUser: text("enc_user"),
+  encPassword: text("enc_password"),
+  encClientId: text("enc_client_id"),
+  encClientSecret: text("enc_client_secret"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+  updatedAt: timestamp("updated_at").notNull().defaultNow(),
+});
+
 /** Catalog cache rows (replaces the stdio build's catalog.json). */
 export const catalogServices = pgTable("catalog_services", {
   /** `${systemKey}:${serviceId}` — same key as the file store. */

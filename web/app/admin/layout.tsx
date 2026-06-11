@@ -15,6 +15,7 @@ export default async function AdminLayout({ children }: { children: ReactNode })
         <strong>muave-sapmcp admin</strong>
         <Link href="/admin">Users</Link>
         <Link href="/admin/groups">Groups</Link>
+        <Link href="/admin/systems">Systems</Link>
         <span className="spacer" />
         <span className="muted">{session.user.email}</span>
       </nav>

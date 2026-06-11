@@ -3,7 +3,7 @@ import { createLogger, ODataClient, type ToolContext } from "muave-sapmcp";
 import { db, dbReady, schema } from "./db";
 import { FilteredSystemDirectory } from "./filtered-directory";
 import { PostgresCatalogStore } from "./catalog-store";
-import { getGlobalSap } from "./systems";
+import { getMergedSystems } from "./systems";
 
 /** The group allowlist for a user; admins implicitly get all systems. */
 export async function allowedSystemsFor(userId: string): Promise<string[]> {
@@ -22,7 +22,7 @@ export async function allowedSystemsFor(userId: string): Promise<string[]> {
  * enforces the same filter, and a logger bound to the user id.
  */
 export async function buildToolContext(userId: string): Promise<ToolContext> {
-  const sap = await getGlobalSap();
+  const sap = await getMergedSystems();
   const allowedSystems = await allowedSystemsFor(userId);
 
   const config = new FilteredSystemDirectory(sap.store, allowedSystems);

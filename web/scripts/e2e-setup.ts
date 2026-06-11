@@ -13,6 +13,22 @@ async function main(): Promise<void> {
   const { db, dbReady, schema } = await import("../lib/db");
   await dbReady;
   const { auth } = await import("../lib/auth");
+  const { encryptSecret, decryptSecret } = await import("../lib/crypto");
+
+  // Crypto round-trip sanity (fails fast if MUAVE_CRED_KEY is misconfigured).
+  const probe = encryptSecret("round-trip-probe");
+  if (decryptSecret(probe) !== "round-trip-probe") throw new Error("crypto round-trip failed");
+
+  // An admin-managed system with ENCRYPTED credentials (visible to admin only).
+  await db.insert(schema.sapSystems).values({
+    key: "SYS_DB",
+    name: "DB-managed system",
+    baseUrl: "https://db.example.invalid",
+    authType: "BASIC",
+    readOnly: true,
+    encUser: encryptSecret("db-user"),
+    encPassword: encryptSecret("db-password"),
+  });
 
   await auth.api.createUser({
     body: { email: "admin@example.com", password: "admin-password-1", name: "Admin", role: "admin" },
