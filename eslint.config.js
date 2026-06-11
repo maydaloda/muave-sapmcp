@@ -5,7 +5,9 @@ import prettier from "eslint-config-prettier";
 
 export default tseslint.config(
   {
-    ignores: ["dist/**", "node_modules/**", "coverage/**"],
+    // web/ is the Vercel app with its own toolchain (Next.js lint/typecheck in its
+    // own package + CI job) — the root config covers the npm package only.
+    ignores: ["dist/**", "node_modules/**", "coverage/**", "web/**"],
   },
   eslint.configs.recommended,
   ...tseslint.configs.recommended,
