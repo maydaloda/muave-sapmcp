@@ -5,8 +5,9 @@
   "description": "Remote MCP deployment of muave-sapmcp: Streamable HTTP on Vercel with email+password auth and admin-managed group access.",
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/predeploy-migrate.mjs && next build",
     "start": "next start",
+    "db:deploy": "node scripts/predeploy-migrate.mjs",
     "typecheck": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
     "db:migrate": "drizzle-kit migrate",
