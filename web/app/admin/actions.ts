@@ -60,6 +60,13 @@ export async function adminResetUserPassword(formData: FormData): Promise<void> 
     body: { userId, newPassword },
     headers: await headers(), // carries the admin session
   });
+  // An admin-issued password is also a recovery — clear any lockout so the user
+  // can sign in immediately with the new password.
+  await dbReady;
+  await db
+    .update(schema.user)
+    .set({ failedLoginAttempts: 0, lockedUntil: null, updatedAt: new Date() })
+    .where(eq(schema.user.id, userId));
   revalidatePath("/admin");
 }
 

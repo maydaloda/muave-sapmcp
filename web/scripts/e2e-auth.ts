@@ -73,6 +73,36 @@ async function main(): Promise<void> {
   );
   record("password-reset request accepted (200)", rr.status === 200, `status=${rr.status}`);
 
+  // Regression: a locked account that resets its password can sign in immediately
+  // with the new password (onPasswordReset must clear the lockout).
+  for (let i = 0; i < 5; i++) await signIn("wrong-again");
+  const reLocked = await userRow();
+  record("re-locked before reset", !!reLocked?.lockedUntil && reLocked.lockedUntil.getTime() > Date.now());
+
+  const vers = await db.select().from(schema.verification);
+  const resetRow = vers.find((v) => String(v.identifier).startsWith("reset-password"));
+  const token = resetRow ? String(resetRow.identifier).split(":")[1] : undefined;
+  const NEW = "brand-new-password-2";
+  const resetRes = token
+    ? await auth.handler(
+        new Request(`${BASE}/api/auth/reset-password`, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ newPassword: NEW, token }),
+        })
+      )
+    : undefined;
+  record("reset-password accepted (200)", resetRes?.status === 200, `status=${resetRes?.status}`);
+
+  const afterReset = await userRow();
+  record(
+    "reset cleared the lockout",
+    (afterReset?.failedLoginAttempts ?? -1) === 0 && !afterReset?.lockedUntil
+  );
+
+  const signInAfterReset = await signIn(NEW);
+  record("sign-in with new password after reset (200)", signInAfterReset === 200, `status=${signInAfterReset}`);
+
   const failed = results.filter((r) => !r.ok);
   console.log(`\n[e2e-auth] ${results.length - failed.length}/${results.length} passed`);
   process.exit(failed.length ? 1 : 0);

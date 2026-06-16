@@ -54,6 +54,14 @@ export const auth = betterAuth({
         html: `<p>Reset your muave-sapmcp password:</p><p><a href="${url}">${url}</a></p><p>This link expires in 1 hour. If you didn't request it, ignore this email.</p>`,
       });
     },
+    // A successful reset is a legitimate recovery — clear any lockout so the
+    // user can sign in immediately with the new password.
+    onPasswordReset: async ({ user }) => {
+      await db
+        .update(schema.user)
+        .set({ failedLoginAttempts: 0, lockedUntil: null, updatedAt: new Date() })
+        .where(eq(schema.user.id, user.id));
+    },
   },
   user: {
     additionalFields: {
