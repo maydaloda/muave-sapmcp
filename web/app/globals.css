@@ -66,28 +66,70 @@ form.row {
 
 input,
 select {
-  background: var(--panel);
+  background: rgba(13, 17, 23, 0.55);
   border: 1px solid var(--border);
   color: var(--text);
-  border-radius: 6px;
-  padding: 7px 10px;
+  border-radius: 10px;
+  padding: 11px 13px;
+  font-size: 14px;
+  outline: none;
+  transition:
+    border-color 0.2s var(--ease-out),
+    box-shadow 0.2s var(--ease-out),
+    background 0.2s var(--ease-out);
+}
+input::placeholder {
+  color: var(--muted);
+}
+input:focus,
+select:focus {
+  border-color: var(--accent);
+  background: rgba(13, 17, 23, 0.75);
+  box-shadow: 0 0 0 3px var(--accent-soft);
 }
 
 button {
-  background: var(--accent);
+  background: linear-gradient(135deg, var(--accent), #1f6feb);
   border: none;
-  color: white;
-  border-radius: 6px;
-  padding: 8px 14px;
+  color: #fff;
+  border-radius: 10px;
+  padding: 11px 16px;
   cursor: pointer;
   font-weight: 600;
+  letter-spacing: 0.01em;
+  transition:
+    transform 0.15s var(--ease-out),
+    box-shadow 0.2s var(--ease-out),
+    filter 0.2s var(--ease-out);
+  box-shadow: 0 8px 22px -10px rgba(47, 129, 247, 0.8);
+}
+button:hover {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+  box-shadow: 0 12px 28px -10px rgba(47, 129, 247, 0.9);
+}
+button:active {
+  transform: translateY(0);
+}
+button:disabled {
+  opacity: 0.6;
+  cursor: default;
+  transform: none;
+  box-shadow: none;
 }
 button.secondary {
-  background: var(--panel);
-  border: 1px solid var(--border);
+  background: rgba(230, 237, 243, 0.06);
+  border: 1px solid var(--glass-border);
+  color: var(--text);
+  box-shadow: none;
+}
+button.secondary:hover {
+  background: rgba(230, 237, 243, 0.12);
+  filter: none;
 }
 button.danger {
-  background: var(--danger);
+  background: linear-gradient(135deg, #f85149, #cf3a32);
+  box-shadow: 0 8px 22px -10px rgba(248, 81, 73, 0.7);
 }
 
 .panel {
@@ -102,14 +144,33 @@ button.danger {
 }
 
 .login-card {
-  max-width: 360px;
+  max-width: 380px;
   margin: 12vh auto;
+  padding: 30px 28px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
+  box-shadow:
+    var(--glass-shadow),
+    0 0 0 1px var(--accent-soft),
+    0 0 60px -20px rgba(47, 129, 247, 0.45);
+  animation: card-in 0.6s var(--ease-out) both;
 }
 .login-card input {
   width: 100%;
+}
+.login-card h1 {
+  font-size: 22px;
+}
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .error {
@@ -162,45 +223,79 @@ nav.top .spacer {
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
-  background: radial-gradient(120% 120% at 50% 0%, #0f1626 0%, var(--bg) 55%);
+  background:
+    radial-gradient(120% 90% at 50% -10%, #15233c 0%, transparent 55%),
+    radial-gradient(90% 90% at 100% 10%, #0c1d33 0%, transparent 50%),
+    var(--bg);
+  animation: aurora-hue 48s ease-in-out infinite;
 }
 .aurora::before,
 .aurora::after,
 .aurora > span {
   content: "";
   position: absolute;
-  width: 60vmax;
-  height: 60vmax;
   border-radius: 50%;
-  filter: blur(64px);
-  opacity: 0.42;
+  filter: blur(72px);
   will-change: transform;
   transform: translate3d(0, 0, 0);
 }
 .aurora::before {
-  top: -16vmax;
-  left: -10vmax;
-  background: radial-gradient(circle at center, rgba(47, 129, 247, 0.55), transparent 60%);
-  animation: drift-a 26s var(--ease-inout) infinite alternate;
+  width: 72vmax;
+  height: 72vmax;
+  top: -24vmax;
+  left: -16vmax;
+  opacity: 0.55;
+  background: radial-gradient(circle at center, rgba(47, 129, 247, 0.9), transparent 62%);
+  animation: drift-a 24s var(--ease-inout) infinite alternate;
 }
 .aurora::after {
-  bottom: -20vmax;
-  right: -12vmax;
-  background: radial-gradient(circle at center, rgba(56, 189, 196, 0.4), transparent 60%);
-  animation: drift-b 32s var(--ease-inout) infinite alternate;
+  width: 66vmax;
+  height: 66vmax;
+  bottom: -26vmax;
+  right: -16vmax;
+  opacity: 0.5;
+  background: radial-gradient(circle at center, rgba(56, 189, 196, 0.8), transparent 62%);
+  animation: drift-b 30s var(--ease-inout) infinite alternate;
 }
-.aurora > span {
-  top: 28%;
-  left: 42%;
-  background: radial-gradient(circle at center, rgba(120, 100, 220, 0.3), transparent 60%);
-  animation: drift-c 38s var(--ease-inout) infinite alternate;
+.aurora > span:nth-child(1) {
+  width: 52vmax;
+  height: 52vmax;
+  top: 14%;
+  left: 36%;
+  opacity: 0.5;
+  background: radial-gradient(circle at center, rgba(124, 92, 255, 0.75), transparent 60%);
+  animation: drift-c 34s var(--ease-inout) infinite alternate;
+}
+.aurora > span:nth-child(2) {
+  width: 46vmax;
+  height: 46vmax;
+  top: 52%;
+  left: 6%;
+  opacity: 0.4;
+  background: radial-gradient(circle at center, rgba(236, 72, 153, 0.5), transparent 60%);
+  animation: drift-a 40s var(--ease-inout) infinite alternate-reverse;
+}
+.aurora > span:nth-child(3) {
+  width: 40vmax;
+  height: 40vmax;
+  top: 6%;
+  right: 12%;
+  opacity: 0.45;
+  background: radial-gradient(circle at center, rgba(34, 211, 238, 0.6), transparent 60%);
+  animation: drift-b 28s var(--ease-inout) infinite alternate-reverse;
+}
+/* depth vignette painted over the blobs */
+.aurora .veil {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 95% at 50% 38%, transparent 38%, rgba(5, 8, 13, 0.62) 100%);
 }
 @keyframes drift-a {
   from {
     transform: translate3d(0, 0, 0) scale(1);
   }
   to {
-    transform: translate3d(8vw, 6vh, 0) scale(1.15);
+    transform: translate3d(10vw, 7vh, 0) scale(1.2);
   }
 }
 @keyframes drift-b {
@@ -208,7 +303,7 @@ nav.top .spacer {
     transform: translate3d(0, 0, 0) scale(1.1);
   }
   to {
-    transform: translate3d(-7vw, -5vh, 0) scale(1);
+    transform: translate3d(-9vw, -6vh, 0) scale(1);
   }
 }
 @keyframes drift-c {
@@ -216,7 +311,16 @@ nav.top .spacer {
     transform: translate3d(0, 0, 0) scale(1);
   }
   to {
-    transform: translate3d(-5vw, 7vh, 0) scale(1.2);
+    transform: translate3d(-7vw, 8vh, 0) scale(1.25);
+  }
+}
+@keyframes aurora-hue {
+  0%,
+  100% {
+    filter: hue-rotate(0deg);
+  }
+  50% {
+    filter: hue-rotate(-18deg);
   }
 }
 
@@ -430,9 +534,13 @@ footer.legal p {
 
 /* Reduced motion: freeze + reveal all */
 @media (prefers-reduced-motion: reduce) {
+  .aurora,
   .aurora::before,
   .aurora::after,
   .aurora > span {
+    animation: none;
+  }
+  .login-card {
     animation: none;
   }
   .flow .flow-pulse {

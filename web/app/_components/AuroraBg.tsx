@@ -3,6 +3,9 @@ export function AuroraBg() {
   return (
     <div className="aurora" aria-hidden="true">
       <span />
+      <span />
+      <span />
+      <div className="veil" />
     </div>
   );
 }
