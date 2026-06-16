@@ -12,7 +12,12 @@ entity set — for both **OData V2 and V4**.
 - 🛟 **Handles what breaks naive clients** — CSRF (V2 **and** V4), **draft-enabled** RAP/Fiori entities, ETag/`If-Match` concurrency, `Retry-After` throttling, and server-driven pagination.
 - 🛡️ **Safe by default** — read-only unless you opt in per system; write tools are dry-run-first; entity allowlists; secrets never become tool arguments and are redacted from logs.
 
-> Status: `0.1.0` — initial release. See [CHANGELOG.md](CHANGELOG.md) and the [Roadmap](#roadmap).
+> Status: `0.2.0`. See [CHANGELOG.md](CHANGELOG.md) and the [Roadmap](#roadmap).
+
+**Two ways to run it:** as a **local stdio server** for Claude Code / Desktop (the
+setup below), or as a **remote hosted server** reachable from claude.ai custom
+connectors, with email/password login and admin-managed access — see
+[Remote / hosted deployment](#remote--hosted-deployment).
 
 ## Install
 
@@ -56,6 +61,12 @@ optional `sapClient`, `readOnly` (default **true**), `allowedEntities`,
 
 - **OAUTH2**: `tokenUrl` (read it from the Communication Arrangement's *"OAuth 2.0 Confidential Client Token Service URL"* — **do not** hardcode the host), `clientIdEnvVar`, `clientSecretEnvVar`. The flow is `grant_type=client_credentials` with the client id/secret in the `Authorization: Basic` header; there is **no** scope param and **no** refresh token (the token is cached and re-fetched on expiry/401).
 - **BASIC**: `userEnvVar` + `passwordEnvVar`, or a `preEncodedEnvVar` (pre-base64'd `user:pass`).
+
+**Serverless / inline config (`MUAVE_SYSTEMS_JSON`):** instead of a file, supply
+the whole configuration as inline JSON in the **`MUAVE_SYSTEMS_JSON`** env var
+(same shape; takes precedence over any `systems.json`). Intended for hosts with no
+writable filesystem — it's how the [hosted deployment](#remote--hosted-deployment)
+is configured.
 
 ### 2. Credentials (environment)
 
@@ -131,6 +142,28 @@ Desktop-specific notes:
 - **Fully quit and relaunch** after editing the config (system tray → Quit on Windows; ⌘Q on macOS) — closing the window isn't enough.
 - Verify: the tools icon in the chat box lists the `muave-sapmcp` tools; try *"List my SAP systems."* If the server shows as failed, check the MCP logs next to the config file (`logs/mcp-server-muave-sapmcp.log`).
 
+## Remote / hosted deployment
+
+The same connector can run as a **remote MCP server** (Streamable HTTP), reachable
+from **claude.ai custom connectors** (web/mobile) as well as Claude Code/Desktop
+remote MCP — with **email + password login on your own domain** (no third-party
+IdP), **admin-managed group → system access**, and support for **multiple
+customers** on one deployment.
+
+- better-auth acts as the OAuth 2.1 authorization server (PKCE + Dynamic Client
+  Registration) that claude.ai connectors require — users just see your login page.
+- Admins create users/groups and assign which SAP systems each group may use,
+  enforced server-side (not just hidden in the UI). Optional admin-managed systems
+  with AES-256-GCM-encrypted credentials.
+- Ships as a Next.js app under [`web/`](web/) (deploy to Vercel with root directory
+  `web/`); Postgres (Neon) backs users/groups and the catalog cache.
+
+Connect from claude.ai: **Settings → Connectors → Add custom connector**, URL
+`https://<your-app>/api/mcp` (leave the OAuth client fields blank — the client
+self-registers via DCR), then sign in.
+
+Full setup, environment variables, and onboarding are in **[web/README.md](web/README.md)**.
+
 ## Tools
 
 | Tool | Purpose |
@@ -183,6 +216,28 @@ Communication Arrangement's Inbound Services.
 - `[throttle/429]` — back off; `retryAfterSeconds` is surfaced.
 - All diagnostics go to **stderr** (JSON via `pino`); set `LOG_LEVEL=debug` for detail.
 
+## Use as a library
+
+Beyond the stdio CLI, the package is **importable** for embedding the connector in
+your own host (this is what the hosted deployment does — register the tools on any
+`McpServer` and supply your own catalog/credential/transport wiring):
+
+```ts
+import {
+  registerAllTools,        // wire all tools onto an McpServer
+  ConfigStore,             // systems config + group-filtering hook (SystemDirectory)
+  ODataClient,             // CSRF/ETag/draft/throttle-aware OData client
+  GovernancePolicy,        // read-only / allowedEntities enforcement
+  JsonFileCatalogStore,    // or implement the CatalogStore interface yourself
+  createLogger,
+  type ToolContext,
+} from "muave-sapmcp";
+```
+
+`main`/`types` resolve to the library entry (`dist/lib.js`); the `muave-sapmcp`
+**bin** (stdio server) is unchanged. See [src/lib.ts](src/lib.ts) for the full
+exported surface.
+
 ## Development
 
 ```bash
@@ -197,7 +252,6 @@ npm run build
 ## Roadmap
 
 X.509/mTLS auth provider (trusting the SAP Cloud Root CA — 2026 CA migration);
-remote Streamable-HTTP transport with the MCP OAuth 2.1 resource-server framework;
 secret-manager credential backends (Vault / AWS / Azure / GCP); `$batch` as a
 first-class tool; SOAP/REST adapters; metadata-driven per-entity input schemas.
 
