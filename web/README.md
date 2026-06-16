@@ -27,6 +27,8 @@ MCP endpoint: `https://<your-app>/api/mcp` · Admin UI: `https://<your-app>/admi
    | `BETTER_AUTH_URL` | `https://<your-app>.vercel.app` (no trailing slash) | no |
    | `BETTER_AUTH_SECRET` | `openssl rand -base64 32` | **yes** |
    | `MUAVE_CRED_KEY` | `openssl rand -base64 32` — master key for admin-added system credentials | **yes** |
+   | `RESEND_API_KEY` | Optional — enables password-reset emails (else the link is logged to the server) | **yes** |
+   | `RESEND_FROM` | Optional — verified sender, e.g. `muave-sapmcp <noreply@yourdomain.com>` | no |
    | `MUAVE_SYSTEMS_JSON` | optional: operator-managed systems as one-line JSON (see `.env.example`) | no |
    | `S4_USER`, `S4_PASSWORD`, … | credentials referenced by `MUAVE_SYSTEMS_JSON` (if used) | **yes** |
 
@@ -64,6 +66,20 @@ Two ways, usable together (env wins on key collision):
   to **read-only**, and a **Test** button verifies reachability/credentials (401
   detection) without exposing anything. Every create/delete/toggle is audit-logged.
   New systems appear in the group editor immediately — no redeploy.
+
+## Onboarding & account security
+
+- **Connect tutorial** — a public, animated walkthrough at **`/connect`** shows the
+  copy-paste connector URL and the claude.ai steps (also linked from the login page).
+- **Password reset** — `/forgot-password` sends a reset link (via Resend if
+  `RESEND_API_KEY` is set; otherwise the link is logged server-side for dev).
+  `/reset-password` consumes the token. Logged-in users can change their password
+  on `/welcome`; admins can reset any user's password from `/admin`.
+- **Account lockout** — after **5 failed sign-ins** an account is locked for **15
+  minutes** (enforced in better-auth `before`/`after` hooks). Admins see lock
+  status and can **Unlock** from `/admin`.
+- **Look & feel** — liquid-glass UI (frosted panels, animated aurora background,
+  scroll-reveal), `prefers-reduced-motion` respected.
 
 ## Access model
 

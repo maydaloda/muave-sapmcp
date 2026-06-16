@@ -17,7 +17,7 @@ export default async function GroupsPage() {
       </p>
 
       <h2>Create group</h2>
-      <form className="row panel" action={createGroup}>
+      <form className="row glass" action={createGroup} style={{ padding: 16 }}>
         <input name="name" placeholder="Group name" required />
         <button type="submit">Create</button>
       </form>
@@ -25,7 +25,7 @@ export default async function GroupsPage() {
       {groups.map((g) => {
         const allowAll = g.allowedSystems.includes("*");
         return (
-          <div key={g.id} className="panel" style={{ marginTop: 16 }}>
+          <div key={g.id} className="glass glass--strong" style={{ marginTop: 16, padding: 20 }}>
             <h2 style={{ marginTop: 0 }}>{g.name}</h2>
             <form action={setGroupSystems}>
               <input type="hidden" name="groupId" value={g.id} />

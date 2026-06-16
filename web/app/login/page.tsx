@@ -2,7 +2,9 @@
 
 import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { authClient } from "@/lib/auth-client";
+import { MuaveMark, SapLogo } from "../_components/SapLogo";
 
 function LoginForm() {
   const router = useRouter();
@@ -29,9 +31,16 @@ function LoginForm() {
 
   return (
     <main>
-      <form className="panel login-card" onSubmit={submit}>
-        <h1>muave-sapmcp</h1>
-        <p className="muted">Sign in with your account.</p>
+      <form className="glass login-card" onSubmit={submit}>
+        <div className="brandbar" style={{ marginTop: 0, marginBottom: 4 }}>
+          <MuaveMark />
+          <span className="dot" />
+          <SapLogo height={26} />
+        </div>
+        <h1 style={{ margin: "4px 0 0" }}>Sign in</h1>
+        <p className="muted" style={{ marginTop: 0 }}>
+          Access your SAP S/4HANA connector.
+        </p>
         <input
           type="email"
           placeholder="Email"
@@ -51,6 +60,16 @@ function LoginForm() {
         <button type="submit" disabled={busy}>
           {busy ? "Signing in…" : "Sign in"}
         </button>
+        <div
+          style={{ display: "flex", justifyContent: "space-between", gap: 12, fontSize: 13 }}
+        >
+          <Link href="/forgot-password" className="muted">
+            Forgot password?
+          </Link>
+          <Link href="/connect" className="muted">
+            How to connect →
+          </Link>
+        </div>
       </form>
     </main>
   );

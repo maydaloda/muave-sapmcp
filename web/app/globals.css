@@ -136,3 +136,315 @@ nav.top .spacer {
   color: var(--muted);
   margin-right: 4px;
 }
+
+/* ===================================================================
+   Liquid-glass design system (append; extends the tokens above)
+   =================================================================== */
+:root {
+  --glass-bg: rgba(22, 27, 34, 0.55);
+  --glass-bg-strong: rgba(22, 27, 34, 0.74);
+  --glass-blur: 18px;
+  --glass-sat: 140%;
+  --glass-border: rgba(230, 237, 243, 0.1);
+  --glass-highlight: rgba(230, 237, 243, 0.06);
+  --glass-shadow: 0 16px 40px -12px rgba(0, 0, 0, 0.55);
+  --accent-soft: rgba(47, 129, 247, 0.18);
+  --accent-2: #38bdc4;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --ease-inout: cubic-bezier(0.4, 0, 0.2, 1);
+  --reveal-shift: 14px;
+}
+
+/* Animated aurora background (fixed, behind everything) */
+.aurora {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background: radial-gradient(120% 120% at 50% 0%, #0f1626 0%, var(--bg) 55%);
+}
+.aurora::before,
+.aurora::after,
+.aurora > span {
+  content: "";
+  position: absolute;
+  width: 60vmax;
+  height: 60vmax;
+  border-radius: 50%;
+  filter: blur(64px);
+  opacity: 0.42;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+}
+.aurora::before {
+  top: -16vmax;
+  left: -10vmax;
+  background: radial-gradient(circle at center, rgba(47, 129, 247, 0.55), transparent 60%);
+  animation: drift-a 26s var(--ease-inout) infinite alternate;
+}
+.aurora::after {
+  bottom: -20vmax;
+  right: -12vmax;
+  background: radial-gradient(circle at center, rgba(56, 189, 196, 0.4), transparent 60%);
+  animation: drift-b 32s var(--ease-inout) infinite alternate;
+}
+.aurora > span {
+  top: 28%;
+  left: 42%;
+  background: radial-gradient(circle at center, rgba(120, 100, 220, 0.3), transparent 60%);
+  animation: drift-c 38s var(--ease-inout) infinite alternate;
+}
+@keyframes drift-a {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(8vw, 6vh, 0) scale(1.15);
+  }
+}
+@keyframes drift-b {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.1);
+  }
+  to {
+    transform: translate3d(-7vw, -5vh, 0) scale(1);
+  }
+}
+@keyframes drift-c {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-5vw, 7vh, 0) scale(1.2);
+  }
+}
+
+/* Frosted glass panel (opaque fallback + feature-guarded blur) */
+.glass {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  box-shadow: var(--glass-shadow);
+  isolation: isolate;
+}
+@supports ((-webkit-backdrop-filter: blur(1px)) or (backdrop-filter: blur(1px))) {
+  .glass {
+    background: var(--glass-bg);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-sat));
+  }
+}
+.glass--strong {
+  background: var(--glass-bg-strong);
+}
+.glass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(
+    135deg,
+    rgba(230, 237, 243, 0.35),
+    rgba(230, 237, 243, 0.04) 35%,
+    transparent 60%,
+    rgba(0, 0, 0, 0.25)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+.glass::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 40%;
+  border-radius: inherit;
+  background: linear-gradient(to bottom, var(--glass-highlight), transparent);
+  pointer-events: none;
+}
+.glass.interactive {
+  transition:
+    transform 0.3s var(--ease-inout),
+    box-shadow 0.3s var(--ease-inout);
+}
+.glass.interactive:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 22px 50px -14px rgba(0, 0, 0, 0.6),
+    0 0 0 1px var(--accent-soft);
+}
+
+/* Scroll-reveal */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(var(--reveal-shift));
+  transition:
+    opacity 0.7s var(--ease-out),
+    transform 0.7s var(--ease-out);
+  will-change: opacity, transform;
+}
+[data-reveal].is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Connection-flow diagram */
+.flow {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.flow .flow-base {
+  stroke: var(--border);
+  stroke-width: 1.5;
+  fill: none;
+}
+.flow .flow-pulse {
+  stroke: var(--accent);
+  stroke-width: 2;
+  fill: none;
+  stroke-dasharray: 6 14;
+  animation: flow-dash 1.4s linear infinite;
+  filter: drop-shadow(0 0 4px var(--accent-soft));
+}
+@keyframes flow-dash {
+  to {
+    stroke-dashoffset: -20;
+  }
+}
+.flow .flow-node {
+  fill: var(--glass-bg-strong);
+  stroke: var(--glass-border);
+}
+.flow .flow-label {
+  fill: var(--text);
+  font: 600 13px ui-sans-serif, system-ui;
+}
+
+/* ===== Tutorial / connect page ===== */
+.hero {
+  text-align: center;
+  padding: 56px 16px 24px;
+}
+.hero h1 {
+  font-size: clamp(28px, 5vw, 44px);
+  line-height: 1.1;
+  margin: 12px 0;
+  letter-spacing: -0.02em;
+}
+.hero p.lead {
+  color: var(--muted);
+  font-size: clamp(15px, 2.2vw, 18px);
+  max-width: 620px;
+  margin: 0 auto;
+}
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent-2);
+}
+.steps {
+  display: grid;
+  gap: 16px;
+  margin: 28px 0;
+}
+.step {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: 18px;
+  align-items: start;
+  padding: 22px 24px;
+}
+.step .num {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 18px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  box-shadow: 0 6px 18px -6px var(--accent-soft);
+}
+.step h3 {
+  margin: 2px 0 6px;
+  font-size: 17px;
+}
+.step p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+.copyfield {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+.copyfield code {
+  flex: 1;
+  min-width: 240px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--glass-border);
+  font-family: ui-monospace, "Cascadia Code", monospace;
+  font-size: 13px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.brandbar {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 18px;
+  opacity: 0.9;
+}
+.brandbar .dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--muted);
+}
+footer.legal {
+  max-width: 880px;
+  margin: 40px auto 24px;
+  padding: 0 16px;
+}
+footer.legal p {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Reduced motion: freeze + reveal all */
+@media (prefers-reduced-motion: reduce) {
+  .aurora::before,
+  .aurora::after,
+  .aurora > span {
+    animation: none;
+  }
+  .flow .flow-pulse {
+    animation: none;
+    stroke-dasharray: none;
+  }
+  [data-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+  .glass.interactive:hover {
+    transform: none;
+  }
+}

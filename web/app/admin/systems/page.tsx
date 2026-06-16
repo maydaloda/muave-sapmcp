@@ -30,7 +30,7 @@ export default async function SystemsPage({
       <h1>SAP systems</h1>
 
       {testKey && testResult && (
-        <div className="panel" style={{ marginBottom: 16 }}>
+        <div className="glass glass--strong" style={{ padding: 20, marginBottom: 16 }}>
           Connection test <strong>{testKey}</strong>: {testResult}
         </div>
       )}
@@ -60,7 +60,7 @@ export default async function SystemsPage({
 
       <h2>Admin-managed (database, credentials encrypted)</h2>
       {!keyReady ? (
-        <div className="panel">
+        <div className="glass glass--strong" style={{ padding: 20 }}>
           <p className="error">
             MUAVE_CRED_KEY is not configured — adding systems is disabled.
           </p>
@@ -118,7 +118,7 @@ export default async function SystemsPage({
           </table>
 
           <h2>Add system</h2>
-          <form className="panel" action={createSystem}>
+          <form className="glass glass--strong" style={{ padding: 20 }} action={createSystem}>
             <div className="row" style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <input name="key" placeholder="Key (e.g. DEVSYS)" required pattern="[A-Za-z0-9_-]{2,40}" />
               <input name="name" placeholder="Display name" />

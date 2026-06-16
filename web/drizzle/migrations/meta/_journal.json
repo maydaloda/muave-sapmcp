@@ -15,6 +15,13 @@
       "when": 1781172119470,
       "tag": "0001_sap-systems",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781589768045,
+      "tag": "0002_account-lockout",
+      "breakpoints": true
     }
   ]
 }

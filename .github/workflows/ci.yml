@@ -47,3 +47,9 @@ jobs:
       - name: E2E (auth + group filtering against built server)
         working-directory: web
         run: npm run e2e
+      - name: E2E (account lockout + password reset, in-process)
+        working-directory: web
+        env:
+          BETTER_AUTH_SECRET: ci-dummy-secret-at-least-32-characters
+          MUAVE_CRED_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+        run: npm run e2e:auth

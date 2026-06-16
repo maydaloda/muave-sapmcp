@@ -49,6 +49,31 @@ export async function setUserRole(formData: FormData): Promise<void> {
   revalidatePath("/admin");
 }
 
+export async function adminResetUserPassword(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const userId = String(formData.get("userId"));
+  const newPassword = String(formData.get("newPassword") ?? "");
+  if (!userId || newPassword.length < 8) {
+    throw new Error("A user and a password of at least 8 characters are required.");
+  }
+  await auth.api.setUserPassword({
+    body: { userId, newPassword },
+    headers: await headers(), // carries the admin session
+  });
+  revalidatePath("/admin");
+}
+
+export async function adminUnlockUser(formData: FormData): Promise<void> {
+  await requireAdmin();
+  await dbReady;
+  const userId = String(formData.get("userId"));
+  await db
+    .update(schema.user)
+    .set({ failedLoginAttempts: 0, lockedUntil: null, updatedAt: new Date() })
+    .where(eq(schema.user.id, userId));
+  revalidatePath("/admin");
+}
+
 export async function createGroup(formData: FormData): Promise<void> {
   await requireAdmin();
   await dbReady;

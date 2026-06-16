@@ -1,4 +1,4 @@
-import { boolean, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
+import { boolean, integer, jsonb, pgTable, text, timestamp } from "drizzle-orm/pg-core";
 
 /* ── better-auth core tables (field names must match better-auth's model) ── */
 
@@ -17,6 +17,9 @@ export const user = pgTable("user", {
   banExpires: timestamp("ban_expires"),
   // app-specific: group membership (managed in /admin)
   groupId: text("group_id"),
+  // account lockout (5 failed logins → 15-min lock)
+  failedLoginAttempts: integer("failed_login_attempts").notNull().default(0),
+  lockedUntil: timestamp("locked_until"),
 });
 
 export const session = pgTable("session", {
