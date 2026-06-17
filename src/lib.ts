@@ -34,6 +34,8 @@ export { AuthError, TokenFetchError } from "./auth/errors.js";
 // OData client
 export { ODataClient } from "./odata/client.js";
 export type { ODataClientDeps, SystemResolver } from "./odata/client.js";
+export { createDispatcherFactory } from "./odata/dispatcher.js";
+export type { DispatcherFactory } from "./odata/dispatcher.js";
 export { ConcurrencyLimiter } from "./odata/concurrency.js";
 export { ODataError } from "./odata/errors.js";
 export type { ErrorCategory } from "./odata/errors.js";

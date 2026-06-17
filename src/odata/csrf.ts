@@ -1,3 +1,5 @@
+import type { Dispatcher } from "undici";
+
 /**
  * CSRF token fetch for OData write requests (ported from the reference impl).
  *
@@ -30,7 +32,8 @@ export async function fetchCsrf(
   url: string,
   headers: Record<string, string>,
   method: "GET" | "HEAD" = "GET",
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  dispatcher?: Dispatcher
 ): Promise<CsrfResult> {
   try {
     const init: RequestInit = {
@@ -38,6 +41,7 @@ export async function fetchCsrf(
       headers: { ...headers, "x-csrf-token": "fetch", accept: "application/json" },
     };
     if (signal) init.signal = signal;
+    if (dispatcher) (init as Record<string, unknown>).dispatcher = dispatcher;
     const res = await fetch(url, init);
     return { token: res.headers.get("x-csrf-token"), cookie: extractCookieHeader(res) };
   } catch {

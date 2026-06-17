@@ -1,3 +1,4 @@
+import type { DispatcherFactory } from "../odata/dispatcher.js";
 import type { AuthDeps, AuthProvider } from "./provider.js";
 import type { CachedToken } from "./token-cache.js";
 import { TokenFetchError } from "./errors.js";
@@ -33,7 +34,8 @@ const DEFAULT_EXPIRES_IN_SEC = 3600;
 export class OAuth2ClientCredentialsProvider implements AuthProvider {
   constructor(
     private readonly config: OAuth2Config,
-    private readonly deps: AuthDeps
+    private readonly deps: AuthDeps,
+    private readonly dispatcher?: DispatcherFactory
   ) {}
 
   async getAuthHeaders(): Promise<Record<string, string>> {
@@ -57,10 +59,11 @@ export class OAuth2ClientCredentialsProvider implements AuthProvider {
     const clientId = await this.deps.credentials.getRequired(this.config.clientIdEnvVar);
     const clientSecret = await this.deps.credentials.getRequired(this.config.clientSecretEnvVar);
     const basic = Buffer.from(`${clientId}:${clientSecret}`).toString("base64");
+    const dispatcher = this.dispatcher ? await this.dispatcher() : undefined;
 
     let res: Response;
     try {
-      res = await fetch(this.config.tokenUrl, {
+      const init: RequestInit = {
         method: "POST",
         headers: {
           "content-type": "application/x-www-form-urlencoded",
@@ -68,7 +71,9 @@ export class OAuth2ClientCredentialsProvider implements AuthProvider {
           accept: "application/json",
         },
         body: "grant_type=client_credentials",
-      });
+      };
+      if (dispatcher) (init as Record<string, unknown>).dispatcher = dispatcher;
+      res = await fetch(this.config.tokenUrl, init);
     } catch (err) {
       throw new TokenFetchError(
         `OAuth2 token request failed (network) for system "${this.config.key}": ` +

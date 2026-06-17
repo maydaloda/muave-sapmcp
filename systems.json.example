@@ -23,6 +23,19 @@
       "passwordEnvVar": "QUAL_COMM_PASSWORD",
       "readOnly": false,
       "allowedEntities": ["A_BusinessPartner", "A_PurchaseRequisitionItem"]
+    },
+    {
+      "key": "PRIVATE",
+      "name": "S/4HANA Private Cloud / on-prem (corporate CA, comm user)",
+      "baseUrl": "https://s4.corp.example.internal:44300",
+      "sapClient": "100",
+      "authType": "BASIC",
+      "userEnvVar": "PRIVATE_COMM_USER",
+      "passwordEnvVar": "PRIVATE_COMM_PASSWORD",
+      "readOnly": true,
+      "tls": {
+        "caFile": "./corporate-ca.pem"
+      }
     }
   ]
 }

@@ -57,10 +57,46 @@ Copy [systems.json.example](systems.json.example) to `systems.json` (in the cwd,
 
 Per-system fields: `key`, `baseUrl`, `authType` (`OAUTH2` | `BASIC` | `X509`),
 optional `sapClient`, `readOnly` (default **true**), `allowedEntities`,
-`timeoutMs`, `maxConcurrency`.
+`timeoutMs`, `maxConcurrency`, `tls`, `proxy`.
 
 - **OAUTH2**: `tokenUrl` (read it from the Communication Arrangement's *"OAuth 2.0 Confidential Client Token Service URL"* — **do not** hardcode the host), `clientIdEnvVar`, `clientSecretEnvVar`. The flow is `grant_type=client_credentials` with the client id/secret in the `Authorization: Basic` header; there is **no** scope param and **no** refresh token (the token is cached and re-fetched on expiry/401).
 - **BASIC**: `userEnvVar` + `passwordEnvVar`, or a `preEncodedEnvVar` (pre-base64'd `user:pass`).
+
+### Private Cloud (RISE) / on-premise
+
+Public-CA cloud systems need nothing extra. **Private Cloud Edition / on-prem**
+systems usually present a **corporate-CA or self-signed** TLS cert and may sit
+behind a proxy — configure that per system (still no secrets in the file):
+
+- **`tls`** — trust a corporate/self-signed cert:
+  - `caFile`: path to the CA chain PEM (handy when self-hosting), **or**
+  - `caEnvVar`: env-var **name** holding the CA PEM (for hosts with no filesystem),
+  - `rejectUnauthorized: false`: disable verification entirely — **dev only**,
+  - `serverName`: override the SNI/hostname checked against the cert.
+- **`proxy`** — `url` of an HTTP(S) proxy (corporate proxy, or the SAP BTP
+  Connectivity on-premise proxy); `authEnvVar` names an env var holding the full
+  `Proxy-Authorization` header value.
+- **`sapClient`** — set the ABAP client (`sap-client`), commonly needed on-prem.
+- **OData V2 (SAP Gateway `/sap/opu/odata/...`)** — fully supported (CSRF, ETag,
+  drafts, `sap-client`); it's the usual on-prem flavor.
+
+```jsonc
+{
+  "key": "PRIVATE",
+  "baseUrl": "https://s4.corp.example.internal:44300",
+  "sapClient": "100",
+  "authType": "BASIC",
+  "userEnvVar": "PRIVATE_COMM_USER",
+  "passwordEnvVar": "PRIVATE_COMM_PASSWORD",
+  "readOnly": true,
+  "tls": { "caFile": "./corporate-ca.pem" }
+}
+```
+
+**Reachability:** run the connector **inside the network/VPN** (stdio, or the
+self-hosted remote build) so it can reach the private system directly. The
+SAP BTP **Cloud Connector** is only consumable by an app **hosted on BTP**
+(Cloud Foundry/Kyma) — that path is on the roadmap.
 
 **Serverless / inline config (`MUAVE_SYSTEMS_JSON`):** instead of a file, supply
 the whole configuration as inline JSON in the **`MUAVE_SYSTEMS_JSON`** env var
@@ -251,9 +287,12 @@ npm run build
 
 ## Roadmap
 
-X.509/mTLS auth provider (trusting the SAP Cloud Root CA — 2026 CA migration);
-secret-manager credential backends (Vault / AWS / Azure / GCP); `$batch` as a
-first-class tool; SOAP/REST adapters; metadata-driven per-entity input schemas.
+SAP BTP deployment (Cloud Foundry) using the SAP Cloud SDK for Connectivity +
+Destination services and **Cloud Connector** reach to on-prem, with optional
+**principal propagation** via IAS; X.509/mTLS auth provider (trusting the SAP
+Cloud Root CA — 2026 CA migration); secret-manager credential backends
+(Vault / AWS / Azure / GCP); `$batch` as a first-class tool; SOAP/REST adapters;
+metadata-driven per-entity input schemas.
 
 ## License
 

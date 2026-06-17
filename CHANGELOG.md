@@ -4,6 +4,20 @@ All notable changes to this project are documented here. The format is based on
 [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project adheres
 to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Private Cloud (RISE) / on-premise connectivity.** New per-system `tls`
+  (custom CA via `caFile` or `caEnvVar`, `rejectUnauthorized`, `serverName`) and
+  `proxy` (`url` + `authEnvVar`) options build a per-system `undici` dispatcher
+  that is injected into every outbound request — data calls, the CSRF token
+  fetch, and the OAuth2 token request. This lets the connector reach S/4HANA
+  Private Cloud Edition / on-prem systems behind a **corporate-CA or self-signed**
+  TLS cert and/or an **HTTP(S) proxy**. Secrets stay out of the config (CA PEM via
+  a file path or an env-var name; proxy auth via an env-var name). The library API
+  now exports `createDispatcherFactory` and the `DispatcherFactory` type.
+
 ## [0.2.0] — 2026-06-11
 
 ### Added

@@ -19,6 +19,31 @@ const baseFields = {
   allowedEntities: z.array(z.string()).optional(),
   timeoutMs: z.number().int().positive().max(600_000).default(30_000),
   maxConcurrency: z.number().int().positive().max(50).default(15),
+  /**
+   * Transport TLS trust — for Private Cloud / on-prem systems behind a corporate
+   * CA or a self-signed cert. Supply the CA chain (PEM) via `caEnvVar` (env-var
+   * name, no secret in the file) or `caFile` (path). `rejectUnauthorized: false`
+   * disables verification entirely — dev only. Omit the block for public-CA hosts.
+   */
+  tls: z
+    .object({
+      caEnvVar: z.string().optional(),
+      caFile: z.string().optional(),
+      rejectUnauthorized: z.boolean().optional(),
+      serverName: z.string().optional(),
+    })
+    .optional(),
+  /**
+   * Route this system's traffic through an HTTP(S) proxy (corporate proxy, or the
+   * SAP BTP Connectivity on-premise proxy). `authEnvVar` names an env var holding
+   * the full `Proxy-Authorization` header value (e.g. `Bearer <token>`).
+   */
+  proxy: z
+    .object({
+      url: z.string().url(),
+      authEnvVar: z.string().optional(),
+    })
+    .optional(),
 };
 
 const BasicAuthConfig = z.object({

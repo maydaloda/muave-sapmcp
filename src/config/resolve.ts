@@ -1,5 +1,6 @@
 import type { AuthDeps, AuthProvider } from "../auth/provider.js";
 import { createAuthProvider } from "../auth/registry.js";
+import { createDispatcherFactory, type DispatcherFactory } from "../odata/dispatcher.js";
 import { ConfigError } from "./load.js";
 import type { AuthType, SystemConfig, SystemsFile } from "./schema.js";
 
@@ -16,6 +17,8 @@ export interface ResolvedSystem {
   maxConcurrency: number;
   authType: AuthType;
   authProvider: AuthProvider;
+  /** Per-system transport (custom-CA/proxy) for outbound fetch; resolves undefined when none. */
+  dispatcher: DispatcherFactory;
 }
 
 /**
@@ -78,6 +81,13 @@ export class ConfigStore implements SystemDirectory {
       );
     }
 
+    // One dispatcher factory per system, shared by data requests, CSRF fetch, and
+    // the OAuth2 token call (the token endpoint is usually on the same host).
+    const dispatcher = createDispatcherFactory(
+      config,
+      this.authDeps.credentials,
+      this.authDeps.logger
+    );
     const resolved: ResolvedSystem = {
       key: config.key,
       config,
@@ -88,7 +98,8 @@ export class ConfigStore implements SystemDirectory {
       timeoutMs: config.timeoutMs,
       maxConcurrency: config.maxConcurrency,
       authType: config.authType,
-      authProvider: createAuthProvider(config, this.authDeps),
+      authProvider: createAuthProvider(config, this.authDeps, dispatcher),
+      dispatcher,
     };
     this.cache.set(targetKey, resolved);
     return resolved;

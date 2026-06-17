@@ -132,6 +132,7 @@ export class ODataClient {
     _flags: ExecuteFlags
   ): Promise<Response> {
     const authHeaders = await system.authProvider.getAuthHeaders();
+    const dispatcher = await system.dispatcher();
     const headers: Record<string, string> = {
       accept: behavior.accept,
       "x-correlation-id": correlationId,
@@ -151,7 +152,8 @@ export class ODataClient {
         this.csrfUrl(system, req),
         { ...headers },
         behavior.csrfMethod,
-        req.signal
+        req.signal,
+        dispatcher
       );
       if (csrf.token) headers["x-csrf-token"] = csrf.token;
       if (csrf.cookie) headers["cookie"] = csrf.cookie;
@@ -171,6 +173,9 @@ export class ODataClient {
       (signal) => {
         const init: RequestInit = { method: req.method, headers, signal };
         if (body !== undefined) init.body = body;
+        // `dispatcher` is an undici extension to fetch init; cast past the
+        // duplicate undici/undici-types Dispatcher definitions.
+        if (dispatcher) (init as Record<string, unknown>).dispatcher = dispatcher;
         return fetch(url, init);
       },
       { timeoutMs: system.timeoutMs, log, ...(req.signal ? { signal: req.signal } : {}) }
