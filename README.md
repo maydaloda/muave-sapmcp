@@ -238,11 +238,14 @@ re-checked at call time. Writes are **dry-run-first**: call with `confirm: false
 ### Catalog discovery caveat
 
 On S/4HANA Cloud Public Edition the OData catalog services are frequently gated
-(KBA 3657717; they need a catalog communication scenario such as SAP_COM_0449).
-`discover_catalog` therefore degrades gracefully (returns `available: false` with
-guidance) — **manual `register_service` is the reliable path**. Find service
-paths on the [SAP Business Accelerator Hub](https://api.sap.com) and in your
-Communication Arrangement's Inbound Services.
+(KBA 3657717). To enable discovery, activate a catalog communication scenario in a
+Communication Arrangement: **`SAP_COM_0181`** exposes the **OData V4** catalog
+(ServiceGroups — what `discover_catalog` probes for V4), and `SAP_COM_0449` the
+classic (V2) catalog. When neither is active, `discover_catalog` degrades
+gracefully (returns `available: false` with guidance) and **manual
+`register_service` is the reliable path** — find service paths on the
+[SAP Business Accelerator Hub](https://api.sap.com) and in your Communication
+Arrangement's Inbound Services.
 
 ## Troubleshooting
 

@@ -195,9 +195,11 @@ export function registerSystemTools(server: McpServer, ctx: ToolContext): void {
         if (!available) {
           result.guidance =
             "Catalog discovery is unavailable on this tenant (commonly gated on Public Cloud — " +
-            "KBA 3657717; needs a catalog communication scenario such as SAP_COM_0449). Register " +
-            "services manually with register_service, using service paths from the SAP Business " +
-            "Accelerator Hub (api.sap.com) and your Communication Arrangement's Inbound Services.";
+            "KBA 3657717). Activate a catalog communication scenario in a Communication " +
+            "Arrangement to enable it: SAP_COM_0181 exposes the OData V4 catalog (ServiceGroups), " +
+            "and SAP_COM_0449 the classic (V2) catalog. Otherwise register services manually with " +
+            "register_service, using service paths from the SAP Business Accelerator Hub " +
+            "(api.sap.com) and your Communication Arrangement's Inbound Services.";
         }
         return ok(result);
       } catch (err) {

@@ -6,6 +6,13 @@ to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- **Catalog discovery guidance.** `discover_catalog` already probes the OData V4
+  catalog (`ServiceGroups`); the guidance and README now name the communication
+  scenario that exposes it — **`SAP_COM_0181`** for the V4 catalog (and
+  `SAP_COM_0449` for the classic V2 catalog) — so tenants know which to activate.
+
 ### Added
 
 - **Private Cloud (RISE) / on-premise connectivity.** New per-system `tls`
