@@ -1,7 +1,7 @@
 import { db, dbReady, schema } from "@/lib/db";
 import { credKeyConfigured } from "@/lib/crypto";
 import { getShared } from "@/lib/systems";
-import { createSystem, deleteSystem, testSystem, toggleSystemWrites } from "./actions";
+import { createSystem, deleteSystem, testSystem, toggleSystemWrites, updateSystem } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +32,12 @@ export default async function SystemsPage({
       {testKey && testResult && (
         <div className="glass glass--strong" style={{ padding: 20, marginBottom: 16 }}>
           Connection test <strong>{testKey}</strong>: {testResult}
+        </div>
+      )}
+
+      {params.updated && (
+        <div className="glass glass--strong" style={{ padding: 20, marginBottom: 16 }}>
+          Updated <strong>{params.updated}</strong> — configuration saved (any new credentials are encrypted).
         </div>
       )}
 
@@ -111,6 +117,46 @@ export default async function SystemsPage({
                         Delete
                       </button>
                     </form>
+                    <details style={{ marginTop: 8 }}>
+                      <summary style={{ cursor: "pointer" }}>Update / replace credentials</summary>
+                      <form
+                        action={updateSystem}
+                        className="glass"
+                        style={{ padding: 12, marginTop: 8, display: "grid", gap: 6, maxWidth: 420 }}
+                      >
+                        <input type="hidden" name="key" value={s.key} />
+                        <input name="name" defaultValue={s.name ?? ""} placeholder="Display name" />
+                        <input name="baseUrl" defaultValue={s.baseUrl} placeholder="https://…" />
+                        <input name="sapClient" defaultValue={s.sapClient ?? ""} placeholder="sap-client (optional)" />
+                        {s.authType === "BASIC" ? (
+                          <>
+                            <input name="user" placeholder="New communication user" autoComplete="off" />
+                            <input
+                              name="password"
+                              type="password"
+                              placeholder="New password"
+                              autoComplete="new-password"
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <input name="tokenUrl" defaultValue={s.tokenUrl ?? ""} placeholder="OAUTH2 token URL" />
+                            <input name="clientId" placeholder="New client id" autoComplete="off" />
+                            <input
+                              name="clientSecret"
+                              type="password"
+                              placeholder="New client secret"
+                              autoComplete="new-password"
+                            />
+                          </>
+                        )}
+                        <button type="submit">Save changes</button>
+                        <span className="muted" style={{ fontSize: 12 }}>
+                          Leave credential fields blank to keep the current ones. authType ({s.authType}) can’t be
+                          changed here — delete &amp; re-add to switch.
+                        </span>
+                      </form>
+                    </details>
                   </td>
                 </tr>
               ))}

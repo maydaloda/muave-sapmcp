@@ -75,6 +75,90 @@ export async function createSystem(formData: FormData): Promise<void> {
   revalidatePath("/admin/groups");
 }
 
+/**
+ * Update an existing admin-managed system: edit non-secret fields (name, baseUrl,
+ * sapClient, and the OAuth token URL) and/or REPLACE credentials. Credential
+ * fields left blank keep the currently-stored secrets — they are never displayed,
+ * only overwritten. authType is fixed (delete + recreate to change it).
+ */
+export async function updateSystem(formData: FormData): Promise<void> {
+  const admin = await requireAdmin();
+  await dbReady;
+
+  const key = String(formData.get("key"));
+  const [existing] = await db
+    .select()
+    .from(schema.sapSystems)
+    .where(eq(schema.sapSystems.key, key))
+    .limit(1);
+  if (!existing) throw new Error(`System "${key}" not found.`);
+
+  const set: Partial<typeof schema.sapSystems.$inferInsert> = { updatedAt: new Date() };
+
+  const name = String(formData.get("name") ?? "").trim();
+  if (name) set.name = name;
+
+  const baseUrl = String(formData.get("baseUrl") ?? "").trim().replace(/\/+$/, "");
+  if (baseUrl) {
+    if (!/^https:\/\//i.test(baseUrl)) throw new Error("Base URL must be https://");
+    set.baseUrl = baseUrl;
+  }
+
+  // Present-but-empty clears sap-client; absent leaves it unchanged.
+  const sapClientField = formData.get("sapClient");
+  if (sapClientField !== null) {
+    const sapClient = String(sapClientField).trim();
+    set.sapClient = sapClient || null;
+  }
+
+  let credsReplaced = false;
+  if (existing.authType === "BASIC") {
+    const user = String(formData.get("user") ?? "");
+    const password = String(formData.get("password") ?? "");
+    if (user || password) {
+      if (!user || !password) {
+        throw new Error("Provide BOTH user and password to replace BASIC credentials.");
+      }
+      set.encUser = encryptSecret(user);
+      set.encPassword = encryptSecret(password);
+      credsReplaced = true;
+    }
+  } else {
+    const tokenUrl = String(formData.get("tokenUrl") ?? "").trim();
+    if (tokenUrl) {
+      if (!/^https:\/\//i.test(tokenUrl)) throw new Error("OAuth token URL must be https://");
+      set.tokenUrl = tokenUrl;
+    }
+    const clientId = String(formData.get("clientId") ?? "");
+    const clientSecret = String(formData.get("clientSecret") ?? "");
+    if (clientId || clientSecret) {
+      if (!clientId || !clientSecret) {
+        throw new Error("Provide BOTH client id and secret to replace OAUTH2 credentials.");
+      }
+      set.encClientId = encryptSecret(clientId);
+      set.encClientSecret = encryptSecret(clientSecret);
+      credsReplaced = true;
+    }
+  }
+
+  await db.update(schema.sapSystems).set(set).where(eq(schema.sapSystems.key, key));
+
+  // OAuth2 access tokens are cached process-wide; drop the cached token so
+  // replaced credentials / a new token URL take effect immediately. (BASIC reads
+  // the encrypted columns fresh on every request, so it needs no invalidation.)
+  if (existing.authType === "OAUTH2" && (credsReplaced || set.tokenUrl)) {
+    const shared = await getShared();
+    shared.authDeps.tokenCache.delete(`oauth2:${key}`);
+  }
+
+  logger.info(
+    { audit: true, action: "system.update", system: key, credsReplaced, by: admin },
+    "admin updated system"
+  );
+  revalidatePath("/admin/systems");
+  redirect(`/admin/systems?updated=${encodeURIComponent(key)}`);
+}
+
 export async function deleteSystem(formData: FormData): Promise<void> {
   const admin = await requireAdmin();
   await dbReady;
