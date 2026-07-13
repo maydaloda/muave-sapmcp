@@ -25,3 +25,6 @@ can-you-check-if-logical-zebra.md
 .idea/
 .claude/
 *.tsbuildinfo
+
+.vercel
+.env*

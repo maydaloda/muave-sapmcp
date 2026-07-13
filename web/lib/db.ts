@@ -21,10 +21,44 @@ declare global {
   var __muaveDb: { db: Db; ready: Promise<void> } | undefined;
 }
 
+/**
+ * Runtime connection string. This deployment is pinned to Supabase, so the
+ * Vercel↔Supabase pooled URL (transaction pooler — the right choice for
+ * serverless) wins first. It must take precedence over a stray DATABASE_URL,
+ * because this project also has a legacy Neon integration that sets
+ * DATABASE_URL/POSTGRES_URL. DATABASE_URL remains the local-dev override when
+ * no Supabase var is present.
+ */
+function runtimeUrl(): string | undefined {
+  return (
+    process.env.SUPABASE_POSTGRES_POSTGRES_URL ||
+    process.env.DATABASE_URL ||
+    process.env.POSTGRES_URL
+  );
+}
+
+/**
+ * Build a pg Pool that connects over TLS without verifying the cert chain for
+ * remote hosts. Supabase's pooler presents a self-signed chain, and newer pg
+ * treats `sslmode=require` as full verification (→ SELF_SIGNED_CERT_IN_CHAIN).
+ * We strip any sslmode so it can't re-impose verify-full over this setting.
+ * Local (localhost) connections stay plaintext.
+ */
+function pgPool(connectionString: string): Pool {
+  const u = new URL(connectionString);
+  const isLocal = u.hostname === "localhost" || u.hostname === "127.0.0.1";
+  u.searchParams.delete("sslmode");
+  return new Pool({
+    connectionString: u.toString(),
+    max: 5,
+    ssl: isLocal ? undefined : { rejectUnauthorized: false },
+  });
+}
+
 function create(): { db: Db; ready: Promise<void> } {
-  const url = process.env.DATABASE_URL;
+  const url = runtimeUrl();
   if (url) {
-    const pool = new Pool({ connectionString: url, max: 5 });
+    const pool = pgPool(url);
     const db = drizzlePg(pool, { schema });
     return { db, ready: Promise.resolve() };
   }
@@ -36,8 +70,8 @@ function create(): { db: Db; ready: Promise<void> } {
   const isBuildPhase = process.env.NEXT_PHASE === "phase-production-build";
   if (process.env.VERCEL && !isBuildPhase) {
     throw new Error(
-      "DATABASE_URL is not set. Attach a Postgres database (e.g. Neon) to this deployment, " +
-        "set DATABASE_URL as an environment variable, and redeploy. " +
+      "No Postgres connection string found. Attach a database (e.g. the Vercel↔Supabase " +
+        "integration, which sets SUPABASE_POSTGRES_POSTGRES_URL) or set DATABASE_URL, then redeploy. " +
         "The embedded PGlite database only works for local development."
     );
   }
